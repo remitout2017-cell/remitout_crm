@@ -35,7 +35,8 @@ class EdubaoAuthAPI:
             headers=_bearer(login_token),
             data={"otp": otp},
         )
-        return CredentialsResult.model_validate(body)
+        oauth_client = body.pop("oauth_client", None) or {}
+        return CredentialsResult.model_validate({**body, **oauth_client})
 
     async def get_access_token(
         self,

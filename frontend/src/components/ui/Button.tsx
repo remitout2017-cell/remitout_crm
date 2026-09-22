@@ -11,9 +11,9 @@ interface Props extends Omit<HTMLMotionProps<'button'>, 'children'> {
 }
 
 const styles: Record<Variant, string> = {
-  primary: 'bg-brand-500 text-white hover:bg-brand-600 shadow-sm shadow-brand-500/30',
-  secondary: 'bg-white text-ink border border-brand-200 hover:bg-brand-50',
-  ghost: 'text-muted hover:bg-brand-200/50',
+  primary: 'bg-brand-500 text-white hover:bg-brand-600 shadow-lg shadow-brand-500/30',
+  secondary: 'border border-white/60 bg-white/40 text-ink backdrop-blur-md hover:bg-white/60',
+  ghost: 'text-muted hover:bg-white/40',
 }
 
 export function Button({ variant = 'primary', loading, icon, children, className, disabled, ...rest }: Props) {

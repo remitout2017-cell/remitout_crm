@@ -82,7 +82,7 @@ export function Sidebar() {
   return (
     <>
       {/* Mobile top bar */}
-      <div className="flex shrink-0 items-center justify-between rounded-3xl bg-neutral-900 px-4 py-3 shadow-xl shadow-black/20 md:hidden">
+      <div className="glass-dark flex shrink-0 items-center justify-between rounded-3xl px-4 py-3 shadow-xl shadow-black/20 md:hidden">
         <button type="button" onClick={() => setMobileOpen(true)} aria-label="Open menu"
           className="flex h-10 w-10 items-center justify-center rounded-2xl bg-white/10 text-white">
           <LuMenu className="h-5 w-5" />
@@ -99,7 +99,7 @@ export function Sidebar() {
               onClick={() => setMobileOpen(false)} className="fixed inset-0 z-40 bg-black/40 md:hidden" />
             <motion.aside key="drawer" initial={{ x: '-100%' }} animate={{ x: 0 }} exit={{ x: '-100%' }}
               transition={{ type: 'spring', stiffness: 320, damping: 34 }}
-              className="fixed inset-y-0 left-0 z-50 flex w-[82vw] max-w-xs flex-col bg-neutral-900 p-4 shadow-2xl md:hidden">
+              className="glass-dark fixed inset-y-0 left-0 z-50 flex w-[82vw] max-w-xs flex-col p-4 shadow-2xl md:hidden">
               <div className="flex items-center justify-between pb-4">
                 <span className="text-base font-bold text-white">Menu</span>
                 <button type="button" onClick={() => setMobileOpen(false)} aria-label="Close menu"
@@ -123,7 +123,7 @@ export function Sidebar() {
       </AnimatePresence>
 
       {/* Desktop icon rail */}
-      <aside className="relative z-20 hidden w-[68px] shrink-0 flex-col items-center rounded-[2.5rem] bg-neutral-900 py-5 shadow-xl shadow-black/20 md:flex">
+      <aside className="glass-dark relative z-20 hidden w-[68px] shrink-0 flex-col items-center rounded-[2.5rem] py-5 shadow-xl shadow-black/20 md:flex">
         <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-500 font-headings text-lg font-extrabold text-white">R</span>
         <nav className="mt-6 flex min-h-0 flex-1 flex-col items-center gap-3 overflow-y-auto">
           {NAV_ITEMS.map((item) => <RailButton key={item.href} item={item} active={isActivePath(pathname, item.href)} />)}

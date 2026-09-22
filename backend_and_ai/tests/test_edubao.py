@@ -172,7 +172,7 @@ async def test_onboarding_chain():
     )
     otp = respx.post(f"{BASE}/api/v1/partners/{PK}/initiate-cred-otp").respond(json={"status": True})
     ver = respx.post(f"{BASE}/api/v1/partners/{PK}/verify-cred-otp").respond(
-        json={"user_key": PK, "x_api_key": "pk_x", "oauth_client": None} | {"client_id": "c", "client_secret": "s"}
+        json={"user_key": PK, "x_api_key": "pk_x", "oauth_client": {"client_id": "c", "client_secret": "s"}}
     )
     s = await api.sign_in(BASE, "a@b.c", "pw")
     await api.initiate_cred_otp(BASE, s.partner_key, s.access_token)

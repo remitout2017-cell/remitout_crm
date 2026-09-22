@@ -8,12 +8,12 @@ export function Modal({ open, title, onClose, children }: Props) {
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4 backdrop-blur-sm"
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
           onClick={onClose}
         >
           <motion.div
-            className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl"
+            className="glass max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl p-6"
             initial={{ y: 24, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 24, opacity: 0 }}
             onClick={(e) => e.stopPropagation()}
           >

@@ -35,7 +35,7 @@ def mock_edubao(respx):
     )
     respx.post(f"{STAGING}/api/v1/partners/{PK}/initiate-cred-otp").respond(json={"status": True})
     respx.post(f"{STAGING}/api/v1/partners/{PK}/verify-cred-otp").respond(
-        json={"user_key": PK, "x_api_key": "pk_secret", "client_id": "cid", "client_secret": "csec"}
+        json={"user_key": PK, "x_api_key": "pk_secret", "oauth_client": {"client_id": "cid", "client_secret": "csec"}}
     )
     respx.post(f"{STAGING}/api/v1/partners/{PK}/access-token").respond(
         json={"access_token": "oauth-tok", "refresh_token": "ref", "expires_in": 7200, "status": True}

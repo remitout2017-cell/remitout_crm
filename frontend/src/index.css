@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+/* Remitout brand theme (colors taken from the remitout project) */
+@theme {
+  --font-headings: "Plus Jakarta Sans", sans-serif;
+  --font-body: "Inter", sans-serif;
+
+  --color-brand-50: #fff7ed;
+  --color-brand-100: #fdf3eb;
+  --color-brand-200: #fee4cc;
+  --color-brand-300: #fdba74;
+  --color-brand-400: #f97316;
+  --color-brand-500: #ff5a00;
+  --color-brand-600: #ea580c;
+  --color-brand-700: #c2410c;
+  --color-ink: #1f2937;
+  --color-muted: #71624d;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--color-brand-100);
+  color: var(--color-ink);
+}
+h1, h2, h3, h4 { font-family: var(--font-headings); }

@@ -6,15 +6,21 @@ export interface Student {
   mobile_no: string
   title?: string | null
   gender?: string | null
+  phone_code?: string | null
+  street_num?: string | null
+  additional_address?: string | null
+  postal_code?: string | null
   city?: string | null
+  state?: string | null
   country?: string | null
+  country_iso?: string | null
   status: string
   nationality?: string | null
   passport_num?: string | null
   created_at: string
 }
 export type StudentInput = Pick<Student, 'first_name' | 'last_name' | 'email' | 'mobile_no'> &
-  Partial<Pick<Student, 'title' | 'gender' | 'city' | 'country'>>
+  Partial<Pick<Student, 'title' | 'gender' | 'phone_code' | 'street_num' | 'additional_address' | 'postal_code' | 'city' | 'state' | 'country' | 'country_iso'>>
 
 export interface Place { location: string; city: string; state: string; country: string; iso: string }
 export const emptyPlace: Place = { location: '', city: '', state: '', country: '', iso: '' }

@@ -31,7 +31,7 @@ async def db(sql, **params):
 
 async def test_student_miss_fills_cache_and_hit_skips_db(cached):
     c, mock, redis = cached
-    sid = (await c.post("/students", json={"first_name": "A", "last_name": "B", "email": "a@b.co", "mobile_no": "1"})).json()["id"]
+    sid = (await c.post("/students", json={"first_name": "A", "last_name": "B", "email": "a@b.co", "mobile_no": "9000000001"})).json()["id"]
     assert await redis.exists(f"t:{keys.student(sid)}") == 0
     assert (await c.get(f"/students/{sid}")).json()["first_name"] == "A"  # miss -> DB -> cache
     assert await redis.exists(f"t:{keys.student(sid)}") == 1
@@ -42,7 +42,7 @@ async def test_student_miss_fills_cache_and_hit_skips_db(cached):
 
 async def test_student_patch_invalidates_then_next_read_refills(cached):
     c, mock, redis = cached
-    sid = (await c.post("/students", json={"first_name": "A", "last_name": "B", "email": "a@b.co", "mobile_no": "1"})).json()["id"]
+    sid = (await c.post("/students", json={"first_name": "A", "last_name": "B", "email": "a@b.co", "mobile_no": "9000000001"})).json()["id"]
     await c.get(f"/students/{sid}")
     r = await c.patch(f"/students/{sid}", json={"first_name": "Z"})
     assert r.json()["first_name"] == "Z" and await redis.exists(f"t:{keys.student(sid)}") == 0
@@ -100,3 +100,10 @@ async def test_form_data_cached_and_refresh_param(cached):
     assert route.call_count == 1
     assert (await c.get("/reference/form-data", params={"partner_account_id": 1, "refresh": True})).json() == {"v": 2}
     assert 3600 <= await redis.ttl(f"t:{keys.form_data(1)}") <= 3960
+
+
+@pytest.mark.parametrize("bad", ["12345", "12345678901", "98765abcde", "+919876543210"])
+async def test_mobile_must_be_exactly_10_digits(cached, bad):
+    c = cached[0]
+    r = await c.post("/students", json={"first_name": "A", "last_name": "B", "email": "a@b.co", "mobile_no": bad})
+    assert r.status_code == 422

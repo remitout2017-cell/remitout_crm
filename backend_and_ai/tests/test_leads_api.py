@@ -108,7 +108,7 @@ async def test_edubao_rejection_is_recorded_and_step_not_advanced(ctx):
 
 async def test_step1_reports_missing_student_fields(ctx):
     c, mock = ctx
-    r = await new_lead(c, {"first_name": "A", "last_name": "B", "email": "a@b.co", "mobile_no": "1"})
+    r = await new_lead(c, {"first_name": "A", "last_name": "B", "email": "a@b.co", "mobile_no": "9000000001"})
     assert r.status_code == 422 and "gender" in r.json()["detail"]
 
 

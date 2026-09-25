@@ -1,6 +1,9 @@
 from datetime import date, datetime
+from typing import Annotated
 
-from pydantic import BaseModel, ConfigDict, EmailStr
+from pydantic import BaseModel, ConfigDict, EmailStr, StringConstraints
+
+Mobile = Annotated[str, StringConstraints(pattern=r"^\d{10}$")]  # 10 digits, no country code (that's phone_code)
 
 
 class Place(BaseModel):
@@ -15,7 +18,7 @@ class StudentCreate(BaseModel):
     first_name: str
     last_name: str
     email: EmailStr
-    mobile_no: str
+    mobile_no: Mobile
     title: str | None = None
     gender: str | None = None
     date_of_birth: date | None = None
@@ -35,7 +38,7 @@ class StudentUpdate(BaseModel):
     first_name: str | None = None
     last_name: str | None = None
     email: EmailStr | None = None
-    mobile_no: str | None = None
+    mobile_no: Mobile | None = None
     title: str | None = None
     gender: str | None = None
     date_of_birth: date | None = None
@@ -53,6 +56,7 @@ class StudentOut(StudentCreate):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
+    mobile_no: str  # output stays lenient so rows saved before the 10-digit rule still load
     status: str
     nationality: str | None = None
     nationality_iso: str | None = None

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import toast from 'react-hot-toast'
-import { FiPlus, FiRefreshCw } from 'react-icons/fi'
+import { FiPlus } from 'react-icons/fi'
 import { useNavigate } from 'react-router-dom'
 import { Badge } from '../../components/ui/Badge'
 import { statusTone } from '../../utils/status'
@@ -29,6 +29,7 @@ export default function Leads() {
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setF({ ...f, [k]: e.target.value })
 
   const formData = useGetFormDataQuery(Number(f.partner_account_id), { skip: !f.partner_account_id })
+  const appTypes: { id: number; title: string }[] = (formData.data as { visa_app_types?: { id: number; title: string }[] } | undefined)?.visa_app_types ?? []
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -72,23 +73,11 @@ export default function Leads() {
               No onboarded partner accounts yet — onboard one on the <span className="font-semibold">Partners</span> page first.
             </p>
           )}
-          <Input label="App type" type="number" required value={f.app_type} onChange={set('app_type')} />
+          <Select label="App type" required value={f.app_type} onChange={set('app_type')} disabled={!f.partner_account_id}>
+            <option value="">{formData.isFetching ? 'Loading…' : 'Select…'}</option>
+            {appTypes.map((t) => <option key={t.id} value={t.id}>{t.title}</option>)}
+          </Select>
           <Input label="Expected arrival" type="date" required value={f.expected_date_arrival} onChange={set('expected_date_arrival')} />
-
-          {f.partner_account_id && (
-            <div className="rounded-lg border border-white/40 bg-white/25 p-3 text-xs sm:col-span-2">
-              <div className="mb-2 flex items-center justify-between">
-                <span className="font-semibold text-muted">App type codes (Edubao form-required-data)</span>
-                <button type="button" onClick={() => formData.refetch()} className="text-muted hover:text-brand-600">
-                  <FiRefreshCw className={formData.isFetching ? 'animate-spin' : undefined} />
-                </button>
-              </div>
-              {formData.isLoading && <div className="h-16 animate-pulse rounded bg-white/40" />}
-              {!formData.isLoading && (
-                <pre className="max-h-40 overflow-auto whitespace-pre-wrap">{JSON.stringify(formData.data ?? {}, null, 2)}</pre>
-              )}
-            </div>
-          )}
 
           <div className="flex justify-end gap-2 sm:col-span-2">
             <Button type="button" variant="secondary" onClick={() => setOpen(false)}>Cancel</Button>

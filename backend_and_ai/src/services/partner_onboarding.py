@@ -61,14 +61,27 @@ class OnboardingService:
         acct.client_id = creds.client_id
         acct.client_secret_enc = encrypt(creds.client_secret)
 
+        # OTPs are single-use: keep the issued credentials even if the token call below fails, so the
+        # token step can be retried (retry_token) without a new OTP.
+        await self._session.commit()
+        return await self._fetch_token(acct)
+
+    async def retry_token(self, account_id: int) -> PartnerAccount:
+        """Re-run `access-token` with the stored credentials (after a failed token step)."""
+        acct = await self._session.get(PartnerAccount, account_id)
+        if acct is None or not acct.password_enc or not acct.onboarded:
+            raise OnboardingError("Partner account has no stored credentials; verify the OTP first")
+        return await self._fetch_token(acct)
+
+    async def _fetch_token(self, acct: PartnerAccount) -> PartnerAccount:
         token = await self._auth.get_access_token(
             acct.base_url,
-            acct.partner_key,
-            x_api_key=creds.x_api_key,
+            acct.partner_key,  # type: ignore[arg-type]
+            x_api_key=decrypt(acct.x_api_key_enc),  # type: ignore[arg-type]
             email=acct.login_email,
-            password=password,  # type: ignore[arg-type]
-            client_id=creds.client_id,
-            client_secret=creds.client_secret,
+            password=decrypt(acct.password_enc),  # type: ignore[arg-type]
+            client_id=acct.client_id,  # type: ignore[arg-type]
+            client_secret=decrypt(acct.client_secret_enc),  # type: ignore[arg-type]
         )
         acct.access_token_enc = encrypt(token.access_token)
         acct.refresh_token_enc = encrypt(token.refresh_token)

@@ -4,11 +4,21 @@ from typing import Any
 import httpx
 from tenacity import AsyncRetrying, retry_if_exception, stop_after_attempt, wait_exponential
 
-from partners.edubao.errors import EdubaoAPIError, EdubaoAuthError, EdubaoError, EdubaoTransportError
+from partners.edubao.errors import EdubaoAPIError, EdubaoAuthError, EdubaoError, EdubaoRateLimitError, EdubaoTransportError
 from partners.edubao.recording import CallRecord, CallRecorder, sanitize
 
 # (filename, bytes, content_type); bytes only, so the body can be re-sent on retry.
 FileTuple = tuple[str, bytes, str]
+
+
+def _retry_after(resp: httpx.Response) -> int | None:
+    """Seconds until the window resets: `Retry-After`, else the standard `RateLimit-Reset` header."""
+    for name in ("Retry-After", "RateLimit-Reset"):
+        try:
+            return max(0, int(float(resp.headers[name])))
+        except (KeyError, ValueError):
+            continue
+    return None
 
 
 class EdubaoHTTP:
@@ -93,6 +103,12 @@ class EdubaoHTTP:
     @staticmethod
     def _parse(resp: httpx.Response, body: Any) -> dict:
         message = body.get("message") if isinstance(body, dict) else None
+        if resp.status_code == 429:
+            raise EdubaoRateLimitError(
+                (body.get("error") if isinstance(body, dict) else None) or message or "Too many requests",
+                retry_after=_retry_after(resp),
+                body=body,
+            )
         if resp.status_code in (401, 403):
             raise EdubaoAuthError(message or "Unauthorized", status_code=resp.status_code, body=body)
         if not resp.is_success:

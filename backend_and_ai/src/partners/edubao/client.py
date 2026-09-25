@@ -37,6 +37,13 @@ class EdubaoPartnerClient:
     async def form_required_data(self) -> dict:
         return (await self._call("GET", "form-required-data")).get("data", {})
 
+    async def get_lead(self, *, lead_id: int | None = None, account_id: str | None = None) -> dict:
+        """Fetch one lead by `lead_id` or `account_id` (lead_id wins if both are sent)."""
+        if lead_id is None and not account_id:
+            raise ValueError("lead_id or account_id is required")
+        payload = {"lead_id": lead_id} if lead_id is not None else {"account_id": account_id}
+        return (await self._call("POST", "get-lead", json=payload)).get("data", {}).get("lead", {})
+
     async def submit_blocked_account(self, step: int, payload: dict[str, Any]) -> LeadStepResult:
         """`payload` is sent as-is (JSON), including Edubao's literal keys like `country[iso]`."""
         body = await self._call("POST", "submit-blocked-account", json={"step": step, **payload})

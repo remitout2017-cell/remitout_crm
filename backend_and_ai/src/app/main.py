@@ -7,7 +7,7 @@ from app.auth import require_admin
 from app.deps import init_edubao
 from app.routers import lead_documents, leads, partners, reference, students
 from core.security import EncryptionError
-from partners.edubao.errors import EdubaoAPIError, EdubaoError
+from partners.edubao.errors import EdubaoAPIError, EdubaoError, EdubaoRateLimitError
 from services.leads import LeadNotFound, LeadValidationError, StepOrderError
 from services.partner_onboarding import OnboardingError
 
@@ -33,6 +33,14 @@ app.include_router(reference.router, dependencies=_protected)
 
 def _json(detail: str, status: int) -> JSONResponse:
     return JSONResponse({"detail": detail}, status_code=status)
+
+
+@app.exception_handler(EdubaoRateLimitError)
+async def edubao_rate_limited(_: Request, exc: EdubaoRateLimitError):
+    resp = _json(f"Edubao: {exc}", 429)
+    if exc.retry_after is not None:
+        resp.headers["Retry-After"] = str(exc.retry_after)
+    return resp
 
 
 @app.exception_handler(EdubaoError)

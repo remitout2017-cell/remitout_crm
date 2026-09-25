@@ -60,6 +60,7 @@ export interface Partner {
   partner_key: string | null
   is_active: boolean
   onboarded: boolean
+  access_token_expires_at: string | null
 }
 export interface PartnerStart { name: string; environment: 'staging' | 'production'; login_email: string; password: string }
 

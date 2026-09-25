@@ -25,3 +25,11 @@ class EdubaoAuthError(EdubaoAPIError):
 
     def __init__(self, message: str, *, status_code: int = 401, body: object = None):
         super().__init__(message, status_code=status_code, body=body)
+
+
+class EdubaoRateLimitError(EdubaoAPIError):
+    """HTTP 429. Not retried in-process: Edubao's windows are minutes long, so back off at the caller."""
+
+    def __init__(self, message: str, *, retry_after: int | None = None, body: object = None):
+        super().__init__(message, status_code=429, body=body)
+        self.retry_after = retry_after

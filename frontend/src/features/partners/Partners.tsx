@@ -7,7 +7,7 @@ import { Input } from '../../components/ui/Input'
 import { PageHeader } from '../../components/ui/PageHeader'
 import { Select } from '../../components/ui/Select'
 import { useAppDispatch, useAppSelector } from '../../store'
-import { useStartOnboardingMutation, useVerifyOnboardingMutation } from './api'
+import { useRetryTokenMutation, useStartOnboardingMutation, useVerifyOnboardingMutation } from './api'
 import { setPartner } from './slice'
 import { errorMessage } from '../../store/baseApi'
 
@@ -17,6 +17,7 @@ export default function Partners() {
   const partner = useAppSelector((s) => s.onboarding.partner)
   const [start, { isLoading: starting }] = useStartOnboardingMutation()
   const [verify, { isLoading: verifying }] = useVerifyOnboardingMutation()
+  const [retry, { isLoading: retrying }] = useRetryTokenMutation()
   const [form, setForm] = useState({ name: '', environment: 'staging' as 'staging' | 'production', login_email: '', password: '' })
   const [otp, setOtp] = useState('')
 
@@ -31,6 +32,12 @@ export default function Partners() {
     try { dispatch(setPartner(await verify({ id: partner.id, otp }).unwrap())); toast.success('Partner onboarded') }
     catch (err) { toast.error(errorMessage(err)) }
   }
+  const onRetry = async () => {
+    if (!partner) return
+    try { dispatch(setPartner(await retry(partner.id).unwrap())); toast.success('Access token issued') }
+    catch (err) { toast.error(errorMessage(err)) }
+  }
+  const hasToken = !!partner?.access_token_expires_at
 
   return (
     <>
@@ -53,7 +60,14 @@ export default function Partners() {
               <p className="text-sm text-muted">Account #{partner.id} · {partner.login_email}</p>
               <Input label="OTP" required value={otp} onChange={(e) => setOtp(e.target.value)} />
               <Button type="submit" loading={verifying}>Verify</Button>
-              {partner.onboarded && <Badge tone="green">Onboarded · {partner.partner_key}</Badge>}
+              {partner.onboarded && hasToken && <Badge tone="green">Onboarded · {partner.partner_key}</Badge>}
+              {partner.onboarded && !hasToken && (
+                <div className="space-y-2">
+                  <Badge tone="brand">Credentials saved · access token pending</Badge>
+                  <p className="text-xs text-muted">Edubao issued credentials but rejected the token request. No new OTP is needed — retry once Edubao has activated the OAuth client.</p>
+                  <Button type="button" variant="secondary" loading={retrying} onClick={onRetry}>Retry token</Button>
+                </div>
+              )}
             </form>
           ) : <p className="text-sm text-muted">Complete step 1 first.</p>}
         </Card>

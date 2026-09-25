@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Protocol
 
-from partners.edubao.errors import EdubaoAuthError
+from partners.edubao.errors import EdubaoAPIError, EdubaoAuthError
 from partners.edubao.onboarding import EdubaoAuthAPI
 
 EXPIRY_LEEWAY = timedelta(seconds=60)
@@ -50,9 +50,10 @@ def _fresh(creds: PartnerCredentials) -> bool:
 class TokenManager:
     """Hands out a valid OAuth access token per partner account.
 
-    A per-account lock makes concurrent requests share one refresh. The doc defines no refresh-token
-    endpoint, so renewal re-runs `access-token`, which needs the partner's password; without a
-    `password_provider` an expired token raises EdubaoAuthError.
+    A per-account lock makes concurrent requests share one refresh. Renewal first tries the stored
+    refresh token (`refresh-access-token`); if there is none or Edubao rejects it, it falls back to
+    re-running `access-token`, which needs the partner's password; without a `password_provider` an
+    expired token raises EdubaoAuthError.
     """
 
     def __init__(
@@ -90,18 +91,30 @@ class TokenManager:
             creds = await self._store.load(account_id)
             if creds.access_token and creds.access_token != stale and _fresh(creds):
                 return creds.access_token
-            password = await self._password_provider(creds) if self._password_provider else None
-            if not password:
-                raise EdubaoAuthError("Edubao access token expired and no password is available to renew it")
-            result = await self._auth_api.get_access_token(
-                creds.base_url,
-                creds.partner_key,
-                x_api_key=creds.x_api_key,
-                email=creds.login_email,
-                password=password,
-                client_id=creds.client_id,
-                client_secret=creds.client_secret,
-            )
+            result = None
+            if creds.refresh_token:
+                try:
+                    result = await self._auth_api.refresh_access_token(
+                        creds.base_url,
+                        creds.partner_key,
+                        x_api_key=creds.x_api_key,
+                        refresh_token=creds.refresh_token,
+                    )
+                except (EdubaoAuthError, EdubaoAPIError):
+                    result = None  # expired/invalid refresh token: re-authenticate below
+            if result is None:
+                password = await self._password_provider(creds) if self._password_provider else None
+                if not password:
+                    raise EdubaoAuthError("Edubao access token expired and no password is available to renew it")
+                result = await self._auth_api.get_access_token(
+                    creds.base_url,
+                    creds.partner_key,
+                    x_api_key=creds.x_api_key,
+                    email=creds.login_email,
+                    password=password,
+                    client_id=creds.client_id,
+                    client_secret=creds.client_secret,
+                )
             expires_at = datetime.now(timezone.utc) + timedelta(seconds=result.expires_in)
             await self._store.save_tokens(account_id, result.access_token, result.refresh_token, expires_at)
             return result.access_token

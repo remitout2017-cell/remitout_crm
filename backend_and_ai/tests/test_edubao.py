@@ -199,3 +199,67 @@ async def test_call_recorder_redacts_secrets():
 def test_sanitize_nested_and_bytes():
     out = sanitize({"a": [{"password": "x", "ok": 1}], "f": b"abc"})
     assert out == {"a": [{"password": "***", "ok": 1}], "f": "<3 bytes>"}
+
+
+REFRESH_URL = f"{BASE}/api/v1/partners/{PK}/refresh-access-token"
+LEAD_URL = f"{BASE}/api/v1/partners/{PK}/get-lead"
+
+
+@respx.mock
+async def test_expired_token_uses_refresh_token_without_password():
+    store = FakeStore(expires_in=-5)
+    store.creds.refresh_token = "ref1"
+    ref = respx.post(REFRESH_URL).respond(
+        json={"access_token": "tok2", "refresh_token": "ref2", "expires_in": 7200, "status": True}
+    )
+    respx.post(STEP_URL).respond(json={"id": 1, "status": True})
+    client, _ = build(store, password_provider=None)
+    await client.submit_blocked_account(1, {})
+    assert b"refresh_token=ref1" in ref.calls[0].request.content
+    assert ref.calls[0].request.headers["x-api-key"] == "key"
+    assert store.creds.access_token == "tok2" and store.creds.refresh_token == "ref2"
+
+
+@respx.mock
+async def test_rejected_refresh_token_falls_back_to_password_login():
+    store = FakeStore(expires_in=-5)
+    store.creds.refresh_token = "stale"
+    respx.post(REFRESH_URL).respond(401, json={"message": "invalid refresh token", "status": False})
+    tok = respx.post(TOKEN_URL).respond(json={"access_token": "tok3", "expires_in": 7200, "status": True})
+    respx.post(STEP_URL).respond(json={"id": 1, "status": True})
+    client, _ = build(store)
+    await client.submit_blocked_account(1, {})
+    assert tok.call_count == 1 and store.creds.access_token == "tok3"
+
+
+@respx.mock
+async def test_get_lead_by_lead_id_takes_precedence():
+    route = respx.post(LEAD_URL).respond(
+        json={"status": True, "data": {"message": "Data found successfully", "lead": {"lead_id": 1880}}}
+    )
+    client, _ = build(FakeStore())
+    lead = await client.get_lead(lead_id=1880, account_id="CX-1")
+    assert lead == {"lead_id": 1880}
+    assert b"account_id" not in route.calls[0].request.content
+
+
+@respx.mock
+async def test_get_lead_not_found_raises():
+    respx.post(LEAD_URL).respond(400, json={"status": False, "message": "Lead not found."})
+    client, _ = build(FakeStore())
+    with pytest.raises(EdubaoAPIError, match="Lead not found"):
+        await client.get_lead(account_id="CX-9")
+
+
+@respx.mock
+async def test_429_raises_rate_limit_error_with_retry_after_and_is_not_retried():
+    from partners.edubao.errors import EdubaoRateLimitError
+
+    route = respx.post(STEP_URL).respond(
+        429, headers={"RateLimit-Reset": "120"}, json={"status": 429, "error": "Too many requests, please try again later."}
+    )
+    client, _ = build(FakeStore())
+    with pytest.raises(EdubaoRateLimitError) as ei:
+        await client.submit_blocked_account(1, {})
+    assert ei.value.retry_after == 120 and "Too many requests" in str(ei.value)
+    assert route.call_count == 1

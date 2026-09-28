@@ -5,7 +5,7 @@ from fastapi.responses import JSONResponse
 
 from app.auth import require_admin
 from app.deps import init_edubao
-from app.routers import lead_documents, leads, partners, reference, students
+from app.routers import form_leads, lead_documents, leads, partners, reference, students
 from core.security import EncryptionError
 from partners.edubao.errors import EdubaoAPIError, EdubaoError, EdubaoRateLimitError
 from services.leads import LeadNotFound, LeadValidationError, StepOrderError
@@ -29,6 +29,8 @@ app.include_router(partners.router, dependencies=_protected)
 app.include_router(leads.router, dependencies=_protected)
 app.include_router(lead_documents.router, dependencies=_protected)
 app.include_router(reference.router, dependencies=_protected)
+# Submission (POST) is public; listing/download are guarded per-route inside the router itself.
+app.include_router(form_leads.router)
 
 
 def _json(detail: str, status: int) -> JSONResponse:

@@ -2,7 +2,7 @@ import { motion, type HTMLMotionProps } from 'framer-motion'
 import { CgSpinner } from 'react-icons/cg'
 import { cn } from '../../utils/cn'
 
-type Variant = 'primary' | 'secondary' | 'ghost'
+type Variant = 'primary' | 'secondary' | 'ghost' | 'danger'
 interface Props extends Omit<HTMLMotionProps<'button'>, 'children'> {
   children?: React.ReactNode
   variant?: Variant
@@ -14,6 +14,7 @@ const styles: Record<Variant, string> = {
   primary: 'bg-brand-500 text-white hover:bg-brand-600 shadow-lg shadow-brand-500/30',
   secondary: 'border border-white/60 bg-white/40 text-ink backdrop-blur-md hover:bg-white/60',
   ghost: 'text-muted hover:bg-white/40',
+  danger: 'border border-red-200 bg-red-50 text-red-600 hover:bg-red-100',
 }
 
 export function Button({ variant = 'primary', loading, icon, children, className, disabled, ...rest }: Props) {

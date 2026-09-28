@@ -120,6 +120,18 @@ class LeadService:
         lead.status = "in_progress"
         return lead.id
 
+    async def update(self, lead_id: int, *, app_type: int | None, expected_date_arrival: date | None) -> None:
+        """Edits the lead's own fields locally — Edubao already has step 1's original submission."""
+        lead = await self.get(lead_id, for_update=True)
+        if app_type is not None:
+            lead.app_type = app_type
+        if expected_date_arrival is not None:
+            lead.expected_date_arrival = expected_date_arrival
+
+    async def delete(self, lead_id: int) -> None:
+        lead = await self.get(lead_id)
+        await self._s.delete(lead)  # DB-level ON DELETE CASCADE removes submissions/documents/payers
+
     # ---- steps 2-4 ---------------------------------------------------------------------------
     async def submit_step2(self, lead_id: int, data: Step2) -> None:
         lead = await self._begin_step(lead_id, 2)

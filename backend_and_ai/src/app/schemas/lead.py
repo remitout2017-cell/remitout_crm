@@ -15,6 +15,13 @@ class LeadCreate(BaseModel):
     expected_date_arrival: date
 
 
+class LeadUpdate(BaseModel):
+    """Local-only edit of the lead's own fields (already-submitted Edubao steps are not re-sent)."""
+
+    app_type: int | None = None
+    expected_date_arrival: date | None = None
+
+
 class Step2(BaseModel):
     diff_maiden_name: str = ""
     nationality: str

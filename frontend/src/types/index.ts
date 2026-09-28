@@ -57,6 +57,7 @@ export interface Lead {
   submissions: Submission[]
 }
 export interface LeadInput { student_id: number; partner_account_id: number; app_type: number; expected_date_arrival: string }
+export interface LeadUpdate { app_type?: number; expected_date_arrival?: string }
 
 export interface Partner {
   id: number
@@ -129,3 +130,53 @@ export interface PayerInput {
 
 /** Edubao's form-required-data: app types, titles, document types — shape isn't fixed, so keep it loose. */
 export type FormReferenceData = Record<string, unknown>
+
+export type FormLeadPurpose = 'student' | 'job_seeker' | 'language_learner' | 'vocational_training' | 'other'
+
+export const PURPOSE_OPTIONS: { value: FormLeadPurpose; label: string }[] = [
+  { value: 'student', label: 'Student' },
+  { value: 'job_seeker', label: 'Job Seeker' },
+  { value: 'language_learner', label: 'Language Learner' },
+  { value: 'vocational_training', label: 'Vocational Training' },
+  { value: 'other', label: 'Other' },
+]
+
+// Mirrors SUPPORTING_DOC_LABELS in backend_and_ai/src/app/schemas/form_lead.py.
+export const SUPPORTING_DOC_LABELS: Record<FormLeadPurpose, string> = {
+  student: 'Student University Letter',
+  job_seeker: 'Higher Study Certificate',
+  language_learner: 'Offer Letter',
+  vocational_training: 'Offer Letter',
+  other: 'Additional Document',
+}
+
+export const PASSPORT_LABEL = 'Student Passport'
+
+export interface FormLeadDocument {
+  id: number
+  slot: 'passport' | 'supporting'
+  label: string
+  original_file_name: string
+  mimetype: string
+  size: number
+  created_at: string
+}
+
+export interface FormLead {
+  id: number
+  full_name: string
+  purpose: FormLeadPurpose
+  email: string
+  phone_number: string
+  edubao_account_opened: boolean
+  created_at: string
+  documents: FormLeadDocument[]
+}
+
+export interface FormLeadPage {
+  items: FormLead[]
+  total: number
+  page: number
+  page_size: number
+  pages: number
+}

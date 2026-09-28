@@ -1,5 +1,5 @@
 import type { IconType } from 'react-icons'
-import { LuBriefcase, LuFileText, LuLayoutDashboard, LuUsers } from 'react-icons/lu'
+import { LuBriefcase, LuFileText, LuLayoutDashboard, LuUpload, LuUsers } from 'react-icons/lu'
 
 export interface NavItem { label: string; href: string; icon: IconType }
 
@@ -7,6 +7,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'Dashboard', href: '/', icon: LuLayoutDashboard },
   { label: 'Students', href: '/students', icon: LuUsers },
   { label: 'Leads', href: '/leads', icon: LuFileText },
+  { label: 'Form Leads', href: '/form-leads', icon: LuUpload },
   { label: 'Partners', href: '/partners', icon: LuBriefcase },
 ]
 

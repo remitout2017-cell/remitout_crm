@@ -1,5 +1,5 @@
 import { baseApi } from '../../store/baseApi'
-import type { Lead, LeadInput, Step2Input, Step3Input, Step4Input } from '../../types'
+import type { Lead, LeadInput, LeadUpdate, Step2Input, Step3Input, Step4Input } from '../../types'
 
 export const leadsApi = baseApi.injectEndpoints({
   endpoints: (b) => ({
@@ -7,6 +7,14 @@ export const leadsApi = baseApi.injectEndpoints({
     getLead: b.query<Lead, number>({ query: (id) => `/leads/${id}`, providesTags: (_r, _e, id) => [{ type: 'Lead', id }] }),
     addLead: b.mutation<Lead, LeadInput>({
       query: (body) => ({ url: '/leads', method: 'POST', body }),
+      invalidatesTags: ['Lead'],
+    }),
+    updateLead: b.mutation<Lead, { id: number; body: LeadUpdate }>({
+      query: ({ id, body }) => ({ url: `/leads/${id}`, method: 'PATCH', body }),
+      invalidatesTags: (_r, _e, { id }) => [{ type: 'Lead', id }, 'Lead'],
+    }),
+    deleteLead: b.mutation<void, number>({
+      query: (id) => ({ url: `/leads/${id}`, method: 'DELETE' }),
       invalidatesTags: ['Lead'],
     }),
     submitStep2: b.mutation<Lead, { leadId: number; body: Step2Input }>({
@@ -25,6 +33,6 @@ export const leadsApi = baseApi.injectEndpoints({
 })
 
 export const {
-  useGetLeadsQuery, useGetLeadQuery, useAddLeadMutation,
+  useGetLeadsQuery, useGetLeadQuery, useAddLeadMutation, useUpdateLeadMutation, useDeleteLeadMutation,
   useSubmitStep2Mutation, useSubmitStep3Mutation, useSubmitStep4Mutation,
 } = leadsApi

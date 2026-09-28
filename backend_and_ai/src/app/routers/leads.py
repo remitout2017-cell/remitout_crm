@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.deps import get_cache, get_client_factory
-from app.schemas.lead import LeadCreate, LeadOut, Step2, Step3, Step4
+from app.schemas.lead import LeadCreate, LeadOut, LeadUpdate, Step2, Step3, Step4
 from core.cache import Cache, keys
 from db.session import get_session
 from partners.edubao.client import EdubaoPartnerClient
@@ -45,6 +45,22 @@ async def get_lead(lead_id: int, svc: LeadService = Depends(get_service), cache:
         return LeadOut.model_validate(await svc.get(lead_id)).model_dump(mode="json")
 
     return await cache.get_or_load(keys.lead(lead_id), load)
+
+
+@router.patch("/{lead_id}", response_model=LeadOut)
+async def update_lead(
+    lead_id: int, body: LeadUpdate, svc: LeadService = Depends(get_service), cache: Cache = Depends(get_cache)
+):
+    return await _mutate(lead_id, svc, cache, svc.update(lead_id, app_type=body.app_type, expected_date_arrival=body.expected_date_arrival))
+
+
+@router.delete("/{lead_id}", status_code=204)
+async def delete_lead(lead_id: int, svc: LeadService = Depends(get_service), cache: Cache = Depends(get_cache)):
+    try:
+        await svc.delete(lead_id)
+        await svc.commit()
+    finally:
+        await cache.delete(keys.lead(lead_id))
 
 
 async def _mutate(lead_id: int, svc: LeadService, cache: Cache, action, *, touches_student: bool = False):

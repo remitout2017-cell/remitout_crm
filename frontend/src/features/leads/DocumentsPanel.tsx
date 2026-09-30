@@ -6,17 +6,21 @@ import { Button } from '../../components/ui/Button'
 import { Card } from '../../components/ui/Card'
 import { FileField } from '../../components/ui/FileField'
 import { Input } from '../../components/ui/Input'
+import { Select } from '../../components/ui/Select'
 import { errorMessage } from '../../store/baseApi'
 import { fmtDate } from '../../utils/cn'
+import { extractDocKeys, useGetFormDataQuery } from '../reference/api'
 import { useGetDocumentsQuery, useUploadDocumentMutation } from './workflowApi'
 
 const fmtSize = (b: number) => (b < 1024 ? `${b} B` : b < 1024 * 1024 ? `${(b / 1024).toFixed(1)} KB` : `${(b / 1024 / 1024).toFixed(1)} MB`)
 
-export function DocumentsPanel({ leadId }: { leadId: number }) {
+export function DocumentsPanel({ leadId, partnerAccountId }: { leadId: number; partnerAccountId: number }) {
   const { data: docs, isLoading } = useGetDocumentsQuery(leadId)
   const [upload, { isLoading: uploading }] = useUploadDocumentMutation()
   const [docKey, setDocKey] = useState('')
   const [file, setFile] = useState<File | null>(null)
+  const formData = useGetFormDataQuery(partnerAccountId)
+  const docKeys = extractDocKeys(formData.data)
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -32,8 +36,15 @@ export function DocumentsPanel({ leadId }: { leadId: number }) {
     <div className="space-y-4">
       <Card title="Upload document">
         <form onSubmit={submit} className="grid gap-3 sm:grid-cols-[1fr_2fr_auto] sm:items-end">
-          <Input label="Doc key" placeholder="passport" required pattern="[a-z0-9_]{1,50}"
-            value={docKey} onChange={(e) => setDocKey(e.target.value.toLowerCase())} />
+          {docKeys.length > 0 ? (
+            <Select label="Doc key" required value={docKey} onChange={(e) => setDocKey(e.target.value)}>
+              <option value="">{formData.isFetching ? 'Loading…' : 'Select…'}</option>
+              {docKeys.map((d) => <option key={d.value} value={d.value}>{d.label} ({d.value})</option>)}
+            </Select>
+          ) : (
+            <Input label="Doc key" placeholder="passport" required pattern="[a-z0-9_]{1,50}"
+              value={docKey} onChange={(e) => setDocKey(e.target.value.toLowerCase())} />
+          )}
           <FileField label="File (PDF/PNG/JPEG, max 2MB)" file={file} onChange={setFile} required />
           <Button type="submit" loading={uploading} icon={<FiPaperclip />}>Upload</Button>
         </form>

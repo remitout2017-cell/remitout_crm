@@ -3,7 +3,7 @@ from decimal import Decimal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from app.schemas.student import Place
+from app.schemas.student import CountryIso3, Place
 
 
 class LeadCreate(BaseModel):
@@ -25,7 +25,7 @@ class LeadUpdate(BaseModel):
 class Step2(BaseModel):
     diff_maiden_name: str = ""
     nationality: str
-    nationality_iso: str
+    nationality_iso: CountryIso3
     date_of_birth: date
     place_of_birth: Place
     passport_num: str
@@ -36,7 +36,7 @@ class Step2(BaseModel):
 
 class Step3(BaseModel):
     blocked_acc_amt: Decimal = Field(gt=0)
-    blocked_acc_duration: int = Field(gt=0)  # months
+    blocked_acc_duration: int = Field(gt=0, le=12)  # months
     visa_eligibility_doc_type: str  # from form-required-data
 
 

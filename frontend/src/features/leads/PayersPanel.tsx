@@ -38,30 +38,30 @@ export function PayersPanel({ leadId }: { leadId: number }) {
         <form onSubmit={submit} className="space-y-4">
           <fieldset className="grid gap-3 sm:grid-cols-3">
             <Input label="Title" required value={f.title} onChange={set('title')} placeholder="Mr" />
-            <Input label="First name" required value={f.first_name} onChange={set('first_name')} />
-            <Input label="Last name" required value={f.last_name} onChange={set('last_name')} />
-            <Input label="Email" type="email" required value={f.email} onChange={set('email')} />
+            <Input label="First name" placeholder="Raju" required value={f.first_name} onChange={set('first_name')} />
+            <Input label="Last name" placeholder="Kale" required value={f.last_name} onChange={set('last_name')} />
+            <Input label="Email" type="email" placeholder="raju@example.com" required value={f.email} onChange={set('email')} />
             <Input label="Phone code" required value={f.phone_code} onChange={set('phone_code')} placeholder="91" />
-            <Input label="Mobile number" required value={f.mobile_number} onChange={set('mobile_number')} />
+            <Input label="Mobile number" placeholder="9369902400" required value={f.mobile_number} onChange={set('mobile_number')} />
             <Input label="Date of birth" type="date" required value={f.date_of_birth} onChange={set('date_of_birth')} />
             <Input label="Relationship to student" required value={f.relationship} onChange={set('relationship')} placeholder="Brother" />
-            <Input label="Transfer amount" type="number" step="0.01" min="0.01" required value={f.transfer_amt} onChange={set('transfer_amt')} />
+            <Input label="Transfer amount" type="number" step="0.01" min="0.01" placeholder="e.g. 10000" required value={f.transfer_amt} onChange={set('transfer_amt')} />
           </fieldset>
           <fieldset className="grid gap-3 sm:grid-cols-2">
             <legend className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted">Nationality</legend>
-            <Input label="Nationality" required value={f.nationality} onChange={set('nationality')} />
-            <Input label="Nationality ISO" required value={f.nationality_iso} onChange={set('nationality_iso')} maxLength={3} />
+            <Input label="Nationality" placeholder="India" required value={f.nationality} onChange={set('nationality')} />
+            <Input label="Nationality ISO" placeholder="IND" required value={f.nationality_iso} onChange={set('nationality_iso')} maxLength={3} />
           </fieldset>
           <PlaceFields label="Birth place" value={f.birth_place} onChange={(p) => setF({ ...f, birth_place: p })} />
           <fieldset className="grid gap-3 sm:grid-cols-2">
             <legend className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted">Address</legend>
-            <Input label="Street" required value={f.street_num} onChange={set('street_num')} />
-            <Input label="Additional address" value={f.additional_address} onChange={set('additional_address')} />
-            <Input label="City" required value={f.city} onChange={set('city')} />
-            <Input label="State" required value={f.state} onChange={set('state')} />
-            <Input label="Postal code" required value={f.postal_code} onChange={set('postal_code')} />
-            <Input label="Country" required value={f.country} onChange={set('country')} />
-            <Input label="Country ISO" required value={f.country_iso} onChange={set('country_iso')} maxLength={3} />
+            <Input label="Street" placeholder="Laxmi Nager" required value={f.street_num} onChange={set('street_num')} />
+            <Input label="Additional address" placeholder="Apartment, suite, etc." value={f.additional_address} onChange={set('additional_address')} />
+            <Input label="City" placeholder="Mumbai" required value={f.city} onChange={set('city')} />
+            <Input label="State" placeholder="Maharashtra" required value={f.state} onChange={set('state')} />
+            <Input label="Postal code" placeholder="400096" required value={f.postal_code} onChange={set('postal_code')} />
+            <Input label="Country" placeholder="India" required value={f.country} onChange={set('country')} />
+            <Input label="Country ISO" placeholder="IND" required value={f.country_iso} onChange={set('country_iso')} maxLength={3} />
           </fieldset>
           <div className="flex justify-end"><Button type="submit" loading={saving}>Save payer</Button></div>
         </form>

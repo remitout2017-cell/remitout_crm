@@ -1,5 +1,5 @@
 import type { IconType } from 'react-icons'
-import { LuBriefcase, LuFileText, LuLayoutDashboard, LuUpload, LuUsers } from 'react-icons/lu'
+import { LuBriefcase, LuFileText, LuLayoutDashboard, LuSearch, LuUpload, LuUsers } from 'react-icons/lu'
 
 export interface NavItem { label: string; href: string; icon: IconType }
 
@@ -9,6 +9,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: 'Leads', href: '/leads', icon: LuFileText },
   { label: 'Form Leads', href: '/form-leads', icon: LuUpload },
   { label: 'Partners', href: '/partners', icon: LuBriefcase },
+  { label: 'Edubao Lookup', href: '/edubao-lookup', icon: LuSearch },
 ]
 
 export const isActivePath = (pathname: string, href: string) =>

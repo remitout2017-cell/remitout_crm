@@ -2,6 +2,7 @@ from collections.abc import Callable
 
 from fastapi import APIRouter, Depends
 
+from app.data.countries import COUNTRIES
 from app.deps import get_cache, get_client_factory
 from core.cache import Cache, keys
 from core.config import settings
@@ -24,3 +25,13 @@ async def form_data(
         settings.cache_reference_ttl_seconds,
         refresh=refresh,
     )
+
+
+@router.get("/countries")
+async def list_countries(q: str | None = None, limit: int = 20):
+    """Country names + ISO alpha-3 codes for the student address form, filtered by `q` (name substring match)."""
+    items = COUNTRIES
+    if q:
+        needle = q.strip().lower()
+        items = [c for c in items if needle in c["name"].lower()]
+    return items[: max(1, min(limit, 250))]

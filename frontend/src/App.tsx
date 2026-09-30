@@ -2,6 +2,7 @@ import { Toaster } from 'react-hot-toast'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { AppLayout } from './components/layout/AppLayout'
 import Dashboard from './features/dashboard/Dashboard'
+import EdubaoLookup from './features/edubaoLookup/EdubaoLookup'
 import FormLeads from './features/formLeads/FormLeads'
 import PublicForm from './features/formLeads/PublicForm'
 import LeadDetail from './features/leads/LeadDetail'
@@ -23,6 +24,7 @@ export default function App() {
           <Route path="leads/:id" element={<LeadDetail />} />
           <Route path="form-leads" element={<FormLeads />} />
           <Route path="partners" element={<Partners />} />
+          <Route path="edubao-lookup" element={<EdubaoLookup />} />
         </Route>
       </Routes>
     </BrowserRouter>

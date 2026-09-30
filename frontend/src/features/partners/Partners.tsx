@@ -45,12 +45,12 @@ export default function Partners() {
       <div className="grid gap-4 lg:grid-cols-2">
         <Card title="1. Credentials">
           <form className="space-y-3" onSubmit={onStart}>
-            <Input label="Name" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+            <Input label="Name" placeholder="Edubao account name" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
             <Select label="Environment" value={form.environment} onChange={(e) => setForm({ ...form, environment: e.target.value as 'staging' | 'production' })}>
               <option value="staging">Staging</option><option value="production">Production</option>
             </Select>
-            <Input label="Login email" type="email" required value={form.login_email} onChange={(e) => setForm({ ...form, login_email: e.target.value })} />
-            <Input label="Password" type="password" required value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
+            <Input label="Login email" type="email" placeholder="partner@example.com" required value={form.login_email} onChange={(e) => setForm({ ...form, login_email: e.target.value })} />
+            <Input label="Password" type="password" placeholder="••••••••" required value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
             <Button type="submit" loading={starting}>Send OTP</Button>
           </form>
         </Card>
@@ -58,7 +58,7 @@ export default function Partners() {
           {partner ? (
             <form className="space-y-3" onSubmit={onVerify}>
               <p className="text-sm text-muted">Account #{partner.id} · {partner.login_email}</p>
-              <Input label="OTP" required value={otp} onChange={(e) => setOtp(e.target.value)} />
+              <Input label="OTP" placeholder="123456" required value={otp} onChange={(e) => setOtp(e.target.value)} />
               <Button type="submit" loading={verifying}>Verify</Button>
               {partner.onboarded && hasToken && <Badge tone="green">Onboarded · {partner.partner_key}</Badge>}
               {partner.onboarded && !hasToken && (

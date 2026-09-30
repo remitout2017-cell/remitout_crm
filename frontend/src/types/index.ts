@@ -1,3 +1,6 @@
+export interface Place { location: string; city: string; state: string; country: string; iso: string }
+export const emptyPlace: Place = { location: '', city: '', state: '', country: '', iso: '' }
+
 export interface Student {
   id: number
   first_name: string
@@ -15,15 +18,19 @@ export interface Student {
   country?: string | null
   country_iso?: string | null
   status: string
+  date_of_birth?: string | null
+  diff_maiden_name?: string | null
   nationality?: string | null
+  nationality_iso?: string | null
+  birth_place?: Place | null
   passport_num?: string | null
+  passport_issued_date?: string | null
+  passport_valid_upto?: string | null
+  passport_issue_place?: Place | null
   created_at: string
 }
 export type StudentInput = Pick<Student, 'first_name' | 'last_name' | 'email' | 'mobile_no'> &
   Partial<Pick<Student, 'title' | 'gender' | 'phone_code' | 'street_num' | 'additional_address' | 'postal_code' | 'city' | 'state' | 'country' | 'country_iso'>>
-
-export interface Place { location: string; city: string; state: string; country: string; iso: string }
-export const emptyPlace: Place = { location: '', city: '', state: '', country: '', iso: '' }
 
 export interface Step2Input {
   diff_maiden_name: string
@@ -52,6 +59,7 @@ export interface Lead {
   expected_date_arrival: string | null
   blocked_acc_amt: string | null
   blocked_acc_duration: number | null
+  visa_eligibility_doc_type: string | null
   terms_accepted: boolean
   created_at: string
   submissions: Submission[]

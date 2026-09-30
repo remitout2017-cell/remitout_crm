@@ -71,7 +71,7 @@ export default function LeadDetail() {
         </div>
       )}
       {tab === 'steps' && <StepsPanel lead={lead} />}
-      {tab === 'documents' && <DocumentsPanel leadId={lead.id} />}
+      {tab === 'documents' && <DocumentsPanel leadId={lead.id} partnerAccountId={lead.partner_account_id} />}
       {tab === 'payers' && <PayersPanel leadId={lead.id} />}
       {tab === 'verify' && <VerificationPanel leadId={lead.id} />}
       {tab === 'reference' && <ReferencePanel partnerAccountId={lead.partner_account_id} />}
